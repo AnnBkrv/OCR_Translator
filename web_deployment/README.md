@@ -11,10 +11,12 @@ A simple web application that lets users upload images, detect text using OCR, a
 ## Frontend
 - Built with React and TypeScript.
 - Components for file upload and displaying results.
+- Frontend runs at http://localhost:5173.
 
 ## Backend
 - FastAPI server handles OCR detection and translation.
 - Preloaded MarianMT models for faster translation.
+- Backend runs at http://localhost:8000.
 
 ## How to Run
 1. **Backend:**  
@@ -22,3 +24,15 @@ A simple web application that lets users upload images, detect text using OCR, a
    cd backend
    pip install -r requirements.txt
    uvicorn main:app --reload
+2. **Frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+
+## Usage
+- Start backend.
+- Open frontend in your browser.
+- Upload an image.
+- Click Detect Text.
+- Choose languages and click Translate.
