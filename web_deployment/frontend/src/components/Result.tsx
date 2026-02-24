@@ -8,6 +8,7 @@ interface ResultProps {
   setSourceLang: React.Dispatch<React.SetStateAction<string>>;
   setTargetLang: React.Dispatch<React.SetStateAction<string>>;
   handleTranslate: () => void;
+  isTranslating: boolean;
 }
 
 function Result({
@@ -18,6 +19,7 @@ function Result({
   setSourceLang,
   setTargetLang,
   handleTranslate,
+  isTranslating,
 }: ResultProps) {
 
   if (!detectedText) return null;
@@ -58,7 +60,10 @@ function Result({
       <br />
       <br />
 
-      <button onClick={handleTranslate}>Translate</button>
+      <button onClick={handleTranslate} disabled={isTranslating}>
+        {isTranslating ? "Translating..." : "Translate"}
+      </button>
+
 
       {translatedText && (
         <>

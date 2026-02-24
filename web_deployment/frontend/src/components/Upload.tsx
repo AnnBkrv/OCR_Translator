@@ -5,6 +5,7 @@ interface UploadProps {
   setImagePreview: React.Dispatch<React.SetStateAction<string | null>>;
   imagePreview: string | null;
   handleDetect: () => void;
+  isDetecting: boolean
 }
 
 function Upload({
@@ -12,6 +13,7 @@ function Upload({
   setImagePreview,
   imagePreview,
   handleDetect,
+  isDetecting,
 }: UploadProps) {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +36,9 @@ function Upload({
           <h3>Preview</h3>
           <img src={imagePreview} alt="Preview" width="300" />
           <br />
-          <button onClick={handleDetect}>Detect Text</button>
+          <button onClick={handleDetect} disabled={isDetecting}>
+            {isDetecting ? "Detecting..." : "Detect Text"}
+          </button>
         </div>
       )}
     </div>

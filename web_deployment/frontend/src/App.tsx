@@ -1,6 +1,7 @@
 import React,  { useState } from "react";
 import Upload from "./components/Upload";
 import Result from "./components/Result";
+import { useRef } from "react";
 
 const App: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -9,12 +10,20 @@ const App: React.FC = () => {
   const [translatedText, setTranslatedText] = useState<string>("");
   const [sourceLang, setSourceLang] = useState<string>("en");
   const [targetLang, setTargetLang] = useState<string>("de");
+  const [isDetecting, setIsDetecting] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
+  const [statusMessage, setStatusMessage] = useState("")
+  const controllerRef = useRef<AbortController | null>(null)
+
 
   const handleDetect = async (): Promise<void> => {
     if (!selectedFile) return;
 
     const formData = new FormData();
     formData.append("file", selectedFile);
+
+    setIsDetecting(true)
+    setStatusMessage("Processing image...")
 
     try {
       const response = await fetch("http://localhost:8000/detect", {
@@ -33,10 +42,19 @@ const App: React.FC = () => {
     } catch (error) {
       console.error("Detection error:", error);
     }
+    finally {
+      setIsDetecting(false)
+      setStatusMessage("")
+    }
   };
 
   const handleTranslate = async (): Promise<void> => {
     if (!detectedText) return;
+    setIsTranslating(true)
+    setStatusMessage("Translating...")
+
+    const controller = new AbortController()
+    controllerRef.current = controller
 
     try {
       const response = await fetch("http://localhost:8000/translate", {
@@ -49,6 +67,7 @@ const App: React.FC = () => {
           source_lang: sourceLang,
           target_lang: targetLang,
         }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -59,9 +78,24 @@ const App: React.FC = () => {
 
       setTranslatedText(data.translated_text);
     } catch (error) {
-      console.error("Translation error:", error);
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setStatusMessage("Translation cancelled.")
+      } else {
+        console.error("Translation error:", error)
+      }
+    } finally {
+      setIsTranslating(false)
+      setStatusMessage("")
+      }
+  }
+
+  const handleStop = () => {
+    if (controllerRef.current) {
+      controllerRef.current.abort()
     }
-  };
+  }
+
+
 
   return (
     <div>
@@ -72,6 +106,7 @@ const App: React.FC = () => {
         setImagePreview={setImagePreview}
         imagePreview={imagePreview}
         handleDetect={handleDetect}
+        isDetecting={isDetecting}
       />
 
       <Result
@@ -82,7 +117,18 @@ const App: React.FC = () => {
         setSourceLang={setSourceLang}
         setTargetLang={setTargetLang}
         handleTranslate={handleTranslate}
+        isTranslating={isTranslating}
       />
+
+      {statusMessage && <p>{statusMessage}</p>}
+      
+      {/* ✅ Stop Button (only while translating) */}
+      {isTranslating && (
+        <button onClick={handleStop}>
+          Stop
+        </button>
+      )}
+
     </div>
   );
 };
