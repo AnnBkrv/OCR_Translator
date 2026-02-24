@@ -15,7 +15,7 @@ A simple web application that lets users upload images, detect text using OCR, a
 
 ## Backend
 - FastAPI server handles OCR detection and translation.
-- Preloaded MarianMT models for faster translation.
+- MarianMT models for translation.
 - Backend runs at http://localhost:8000.
 
 ## How to Run
